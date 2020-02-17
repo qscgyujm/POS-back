@@ -1,17 +1,17 @@
-const { pick } = require('lodash');
+import { pick } from 'lodash';
 
-const userModel = require('../models/user');
+import * as userModel from '../models/user';
 
-const findUserById = async (req, res) => {
+export async function findUserById(req, res) {
   const userId = pick(req.params, ['id']).id;
 
   const user = pick(await userModel.findUser(userId), ['email', 'name', 'location']);
   res.json(
     user,
   );
-};
+}
 
-const updateUser = async (req, res, next) => {
+export async function updateUser(req, res) {
   const userId = pick(req.params, ['id']).id;
 
   const user = await userModel.findUser(userId);
@@ -23,16 +23,10 @@ const updateUser = async (req, res, next) => {
   };
 
   await userModel.updateUser(userId, newUserPlacement);
-};
+}
 
-const createUser = async (req, res, next) => {
+export async function createUser(req, res) {
   const placement = pick(req.body, ['email', 'password', 'name']);
 
   await userModel.createUser(placement);
-};
-
-module.exports = {
-  findUserById,
-  createUser,
-  updateUser,
-};
+}

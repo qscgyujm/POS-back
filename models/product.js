@@ -1,9 +1,9 @@
 /* eslint no-useless-catch: "off" */
-const { QueryTypes } = require('sequelize');
+import { QueryTypes } from 'sequelize';
 
 const appDB = require('../db/index');
 
-exports.createProduct = async (replacements) => {
+export async function createProduct(replacements) {
   try {
     const sql = `
     INSERT INTO products(
@@ -35,9 +35,9 @@ exports.createProduct = async (replacements) => {
   } catch (error) {
     return error;
   }
-};
+}
 
-exports.findProductById = async (p_id) => {
+export async function findProductById(p_id) {
   try {
     const sql = 'SELECT * from products WHERE p_id = :p_id';
 
@@ -55,9 +55,9 @@ exports.findProductById = async (p_id) => {
   } catch (error) {
     throw error;
   }
-};
+}
 
-exports.updateProductById = async (p_id, replacements) => {
+export async function updateProductById(p_id, replacements) {
   try {
     const sql = `
       UPDATE products
@@ -86,9 +86,9 @@ exports.updateProductById = async (p_id, replacements) => {
   } catch (error) {
     throw error;
   }
-};
+}
 
-exports.deleteProduct = async (p_id) => {
+export async function deleteProduct(p_id) {
   const sql = `
       DELETE FROM products
       WHERE p_id = :p_id
@@ -109,4 +109,4 @@ exports.deleteProduct = async (p_id) => {
   } catch (error) {
     return false;
   }
-};
+}

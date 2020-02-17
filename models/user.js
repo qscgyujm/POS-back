@@ -1,9 +1,9 @@
 /* eslint no-useless-catch: "off" */
-const { QueryTypes } = require('sequelize');
+import { QueryTypes } from 'sequelize';
 
 const appDB = require('../db/index');
 
-exports.findUser = async (userId) => {
+export async function findUser(userId) {
   try {
     const sql = 'SELECT * from users WHERE id = :id';
 
@@ -21,9 +21,9 @@ exports.findUser = async (userId) => {
   } catch (error) {
     throw error;
   }
-};
+}
 
-exports.updateUser = async (userId, placement) => {
+export async function updateUser(userId, placement) {
   const sql = `
     UPDATE users
     SET
@@ -46,9 +46,9 @@ exports.updateUser = async (userId, placement) => {
   );
 
   console.log(newUser);
-};
+}
 
-exports.createUser = async (placement) => {
+export async function createUser(placement) {
   const sql = `
     INSERT INTO users(
       email,
@@ -77,4 +77,4 @@ exports.createUser = async (placement) => {
   );
 
   console.log(user);
-};
+}

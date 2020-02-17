@@ -1,8 +1,8 @@
-const { pick, isNil } = require('lodash');
+import { pick, isNil } from 'lodash';
 
-const productModel = require('../models/product');
+import * as productModel from '../models/product';
 
-exports.createProduct = async (req, res) => {
+export async function createProduct(req, res) {
   const placement = {
     ...pick(req.body, ['name', 'price']),
     description: req.body.description ? req.body.description : null,
@@ -16,9 +16,9 @@ exports.createProduct = async (req, res) => {
   }
 
   res.sendStatus(200);
-};
+}
 
-exports.findProductById = async (req, res) => {
+export async function findProductById(req, res) {
   const productId = pick(req.params, 'id').id;
 
   const product = await productModel.findProductById(productId);
@@ -30,9 +30,9 @@ exports.findProductById = async (req, res) => {
   res
     .sendStatus(200)
     .json(product);
-};
+}
 
-exports.updateProduct = async (req, res) => {
+export async function updateProduct(req, res) {
   const productId = pick(req.params, 'id').id;
   const newProduct = pick(req.body, ['name', 'description', 'price', 'imageUrl']);
 
@@ -58,9 +58,9 @@ exports.updateProduct = async (req, res) => {
     .json({
       count: updatedProductCount,
     });
-};
+}
 
-exports.deleteProductById = async (req, res) => {
+export async function deleteProductById(req, res) {
   const productId = pick(req.params, 'id').id;
 
   const deleteResult = await productModel.deleteProduct(productId);
@@ -74,4 +74,4 @@ exports.deleteProductById = async (req, res) => {
     .json({
       status: 'success',
     });
-};
+}

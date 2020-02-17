@@ -1,4 +1,4 @@
-const { Sequelize } = require('sequelize');
+import { Sequelize } from 'sequelize';
 
 const sequelize = new Sequelize({
   host: process.env.DB_HOST,
@@ -18,4 +18,4 @@ sequelize
     process.exit(1);
   });
 
-module.exports = sequelize;
+export default sequelize;

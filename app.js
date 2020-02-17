@@ -1,17 +1,17 @@
-require('dotenv').config();
+import 'dotenv/config';
 
-const express = require('express');
-const path = require('path');
-const cookieParser = require('cookie-parser');
-const logger = require('morgan');
+import express from 'express';
+import path from 'path';
+import cookieParser from 'cookie-parser';
+import logger from 'morgan';
 
-const indexRouter = require('./routes/index');
-const usersRouter = require('./routes/users');
-const productRouter = require('./routes/product');
+import indexRouter from './routes/index';
+
+import './db/index';
+import usersRouter from './routes/users';
+import productRouter from './routes/product';
 
 const app = express();
-
-require('./db/index');
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -26,6 +26,6 @@ app.use('/product', productRouter);
 console.log(process.env.NODE_ENV);
 
 // module.exports = app;
-app.listen(3000, ()=>{
-  console.log("app listening on port");
-})
+app.listen(3000, () => {
+  console.log('app listening on port');
+});

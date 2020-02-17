@@ -1,4 +1,4 @@
-const multer = require('multer');
+import multer from 'multer';
 
 // multer
 // https://www.npmjs.com/package/multer
@@ -29,7 +29,7 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-module.exports = multer({
+export default multer({
   storage: fileStorage,
   fileFilter,
 }).single('file');

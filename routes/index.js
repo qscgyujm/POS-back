@@ -1,9 +1,8 @@
-const express = require('express');
-const fs = require('fs');
-const AWS = require('aws-sdk');
+import express from 'express';
+import fs from 'fs';
+import AWS from 'aws-sdk';
 
-
-const uploadFileMiddlerWare = require('../middleware/uploadFile');
+import uploadFileMiddlerWare from '../middleware/uploadFile';
 
 const router = express.Router();
 
@@ -52,5 +51,4 @@ router.post('/uploadFileS3',
     });
   });
 
-
-module.exports = router;
+export default router;
