@@ -4,8 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "dev": "nodemon app.js",
-    "dev2": "nodemon --exec babel-node app.js"
+    "dev": "nodemon --exec babel-node app.js"
   },
   "dependencies": {
     "@babel/core": "^7.8.4",
