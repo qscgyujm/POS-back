@@ -1,7 +1,7 @@
 /* eslint no-useless-catch: "off" */
 import { QueryTypes } from 'sequelize';
 
-const appDB = require('../db/index');
+import appDB from '../db/index';
 
 export async function findUser(userId) {
   try {
@@ -12,6 +12,26 @@ export async function findUser(userId) {
       {
         replacements: {
           id: userId,
+        },
+        type: QueryTypes.SELECT,
+      },
+    );
+
+    return user[0];
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function findUserByEmail(email) {
+  try {
+    const sql = 'SELECT * from users WHERE email = :email';
+
+    const user = await appDB.query(
+      sql,
+      {
+        replacements: {
+          email,
         },
         type: QueryTypes.SELECT,
       },
@@ -64,6 +84,7 @@ export async function createUser(placement) {
       NOW()
     )
   `;
+
   const user = await appDB.query(
     sql,
     {
@@ -76,5 +97,5 @@ export async function createUser(placement) {
     },
   );
 
-  console.log(user);
+  return user[1];
 }

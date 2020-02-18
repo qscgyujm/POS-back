@@ -1,7 +1,7 @@
 /* eslint no-useless-catch: "off" */
 import { QueryTypes } from 'sequelize';
 
-const appDB = require('../db/index');
+import appDB from '../db/index';
 
 export async function createProduct(replacements) {
   try {

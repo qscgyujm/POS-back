@@ -1,10 +1,10 @@
 import express from 'express';
-// import fs from 'fs';
-// import AWS from 'aws-sdk';
-
-// import uploadFileMiddlerWare from '../middleware/uploadFile';
 
 import generalRoute from './general';
+import usersRouter from './users';
+import productRouter from './product';
+
+import authMiddleware from '../middleware/auth';
 
 const router = express.Router();
 
@@ -14,5 +14,8 @@ router.get('/', (req, res) => {
 });
 
 router.use(generalRoute);
+
+router.use('/users', usersRouter);
+router.use('/product', authMiddleware, productRouter);
 
 export default router;

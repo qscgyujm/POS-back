@@ -1,4 +1,6 @@
-import { pick } from 'lodash';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { pick, isEqual } from 'lodash';
 
 import * as userModel from '../models/user';
 
@@ -26,7 +28,49 @@ export async function updateUser(req, res) {
 }
 
 export async function createUser(req, res) {
-  const placement = pick(req.body, ['email', 'password', 'name']);
+  const placement = pick(req.body, ['password', 'confirmedPassword']);
 
-  await userModel.createUser(placement);
+  if (!isEqual(placement.password, placement.confirmedPassword)) {
+    res.sendStatus(400);
+  }
+
+  const hashedPassword = bcrypt.hashSync(placement.password, 8);
+
+  const createdStatus = await userModel.createUser({
+    ...pick(req.body, ['email', 'name']),
+    password: hashedPassword,
+  });
+
+  if (createdStatus) {
+    res.sendStatus(201);
+  }
+}
+
+export async function login(req, res) {
+  const placement = pick(req.body, ['email', 'password']);
+
+  const userInfo = pick(
+    await userModel.findUserByEmail(placement.email),
+    ['password'],
+  );
+
+  const isMatch = await bcrypt.compare(placement.password, userInfo.password);
+
+  if (!isMatch) {
+    res.sendStatus(404);
+  }
+
+  const token = await jwt.sign({
+    email: userInfo.email,
+  },
+  process.env.APP_KEY,
+  {
+    expiresIn: '7d',
+  });
+
+  res.status(200)
+    .set('token', token)
+    .json({
+      status: 'success',
+    });
 }

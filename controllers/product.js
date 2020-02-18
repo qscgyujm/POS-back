@@ -28,7 +28,7 @@ export async function findProductById(req, res) {
   }
 
   res
-    .sendStatus(200)
+    .status(200)
     .json(product);
 }
 
