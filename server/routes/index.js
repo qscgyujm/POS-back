@@ -3,6 +3,7 @@ import express from 'express';
 import generalRoute from './general';
 import usersRouter from './users';
 import productRouter from './product';
+import testingRoute from './test';
 
 import authMiddleware from '../middleware/auth';
 
@@ -14,6 +15,7 @@ router.get('/', (req, res) => {
 });
 
 router.use(generalRoute);
+router.use('/test', testingRoute);
 
 router.use('/users', usersRouter);
 router.use('/product', authMiddleware, productRouter);
