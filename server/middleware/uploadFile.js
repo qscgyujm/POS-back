@@ -1,4 +1,5 @@
 import multer from 'multer';
+import path from 'path';
 
 // multer
 // https://www.npmjs.com/package/multer
@@ -10,7 +11,7 @@ import multer from 'multer';
 //  store path
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'public/images');
+    cb(null, path.join(`${__dirname}/../public/images`));
   },
   filename: (req, file, cb) => {
     cb(null, `${new Date().getMilliseconds().toString()}-${file.originalname}`);
@@ -20,8 +21,8 @@ const fileStorage = multer.diskStorage({
 const fileFilter = (req, file, cb) => {
   if (
     file.mimetype === 'image/png'
-        || file.mimetype === 'image/jpg'
-        || file.mimetype === 'image/jpeg'
+      || file.mimetype === 'image/jpg'
+      || file.mimetype === 'image/jpeg'
   ) {
     cb(null, true);
   } else {
@@ -32,4 +33,20 @@ const fileFilter = (req, file, cb) => {
 export default multer({
   storage: fileStorage,
   fileFilter,
-}).single('file');
+}).single('image');
+
+
+// export default (req, res, next) => {
+//   const upload = multer({
+//     storage: fileStorage,
+//     fileFilter,
+//   }).single('image');
+
+//   return upload(req, res, (error) => {
+//     if (error) {
+//       console.log('error', error);
+//     }
+
+//     next();
+//   });
+// };

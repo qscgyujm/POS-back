@@ -6,30 +6,41 @@ export async function createProduct(req, res) {
   const placement = {
     ...pick(req.body, ['name', 'price']),
     description: req.body.description ? req.body.description : null,
-    imageUrl: req.body.description ? req.body.description : null,
+    imageUrl: req.body.imageUrl ? req.body.imageUrl : null,
   };
 
   const createStatue = await productModel.createProduct(placement);
 
   if (!createStatue === 1) {
-    res.sendStatus(404);
+    res.sendStatus(404).end();
   }
 
-  res.sendStatus(200);
+  const productList = await productModel.getAllProduct();
+
+  res
+    .status(200)
+    .json({
+      productList,
+    });
+}
+
+export async function findAllProduct(req, res) {
+  const products = await productModel.getAllProduct();
+
+  res.status(200).json(products);
 }
 
 export async function findProductById(req, res) {
   const productId = pick(req.params, 'id').id;
+  console.log('req.userId:', req.userId);
 
-  const product = await productModel.findProductById(productId);
+  try {
+    const product = await productModel.findProductById(productId);
 
-  if (isNil(product)) {
-    res.sendStatus(404);
+    res.status(200).json(product);
+  } catch (error) {
+    console.log(error);
   }
-
-  res
-    .status(200)
-    .json(product);
 }
 
 export async function updateProduct(req, res) {
@@ -53,10 +64,13 @@ export async function updateProduct(req, res) {
     res.sendStatus(404);
   }
 
+  const productList = await productModel.getAllProduct();
+
   res
     .status(200)
     .json({
       count: updatedProductCount,
+      productList,
     });
 }
 

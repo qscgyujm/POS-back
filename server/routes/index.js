@@ -1,23 +1,17 @@
 import express from 'express';
 
-import generalRoute from './general';
-import usersRouter from './users';
-import productRouter from './product';
-import testingRoute from './test';
+import protectRoute from './protectRoute';
 
-import authMiddleware from '../middleware/auth';
+import testingRoute from './test';
 
 const router = express.Router();
 
 /* GET home page. */
 router.get('/', (req, res) => {
-  res.render('index', { title: 'Express' });
+  res.send('POS API');
 });
 
-router.use(generalRoute);
 router.use('/test', testingRoute);
-
-router.use('/users', usersRouter);
-router.use('/product', authMiddleware, productRouter);
+router.use(protectRoute);
 
 export default router;

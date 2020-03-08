@@ -3,6 +3,23 @@ import { QueryTypes } from 'sequelize';
 
 import appDB from '../db/index';
 
+export async function getAllProduct() {
+  try {
+    const sql = 'SELECT * from products';
+
+    const products = await appDB.query(
+      sql,
+      {
+        type: QueryTypes.SELECT,
+      },
+    );
+
+    return products;
+  } catch (error) {
+    throw error;
+  }
+}
+
 export async function createProduct(replacements) {
   try {
     const sql = `
@@ -33,6 +50,28 @@ export async function createProduct(replacements) {
 
     return product[1];
   } catch (error) {
+    return error;
+  }
+}
+
+export async function findMultipleProduct(p_ids) {
+  try {
+    const sql = 'SELECT * from products WHERE p_id IN (:p_ids)';
+
+    const products = await appDB.query(
+      sql,
+      {
+        replacements: {
+          p_ids,
+        },
+        type: QueryTypes.SELECT,
+      },
+    );
+
+    console.log('product', products);
+    return products;
+  } catch (error) {
+    console.log('error', error);
     return error;
   }
 }

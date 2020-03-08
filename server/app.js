@@ -22,6 +22,6 @@ app.use(indexRouter);
 console.log(process.env.NODE_ENV);
 
 // module.exports = app;
-app.listen(3000, () => {
+app.listen(process.env.PORT, () => {
   console.log('app listening on port');
 });

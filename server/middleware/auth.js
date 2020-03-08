@@ -2,17 +2,20 @@ import jwt from 'jsonwebtoken';
 
 
 export default async (req, res, next) => {
-  const token = req.get('token');
+  const token = req.get('Authorization');
 
   if (!token) {
-    res.sendStatus(401);
+    res.sendStatus(401).send('no token');
+    return;
   }
 
   const isLogin = await jwt.verify(token, process.env.APP_KEY);
 
-  if (isLogin) {
-    next();
+  if (!isLogin) {
+    res.sendStatus(410);
+    return;
   }
 
-  res.sendStatus(401);
+  req.userId = isLogin.userId;
+  next();
 };

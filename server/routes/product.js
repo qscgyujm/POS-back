@@ -4,7 +4,7 @@ import * as productsController from '../controllers/product';
 
 const router = express.Router();
 
-router.get('/:id', productsController.findProductById);
+router.get('/all', productsController.findAllProduct);
 router.post('/create', productsController.createProduct);
 router.put('/:id', productsController.updateProduct);
 router.delete('/:id', productsController.deleteProductById);

@@ -13,8 +13,21 @@ export async function findUserById(req, res) {
   );
 }
 
+export async function findUser(req, res) {
+  const { userId } = req;
+
+  const user = await userModel.findUser(userId);
+  const userInfo = pick(user, ['email', 'name', 'location']);
+
+  res
+    .status(200)
+    .json({
+      profile: userInfo,
+    });
+}
+
 export async function updateUser(req, res) {
-  const userId = pick(req.params, ['id']).id;
+  const { userId } = req;
 
   const user = await userModel.findUser(userId);
   const inputSetting = pick(req.body, ['name', 'location']);
@@ -24,20 +37,31 @@ export async function updateUser(req, res) {
     ...inputSetting,
   };
 
-  await userModel.updateUser(userId, newUserPlacement);
+  const updatedCount = await userModel.updateUser(userId, newUserPlacement);
+
+  if (updatedCount !== 1) {
+    res.status(404);
+  }
+
+  const newProfile = pick(
+    await userModel.findUser(userId),
+    ['email', 'name', 'location'],
+  );
+
+  res
+    .status(200)
+    .json({
+      profile: newProfile,
+    });
 }
 
 export async function createUser(req, res) {
-  const placement = pick(req.body, ['password', 'confirmedPassword']);
-
-  if (!isEqual(placement.password, placement.confirmedPassword)) {
-    res.sendStatus(400);
-  }
+  const placement = pick(req.body, ['password']);
 
   const hashedPassword = bcrypt.hashSync(placement.password, 8);
 
   const createdStatus = await userModel.createUser({
-    ...pick(req.body, ['email', 'name']),
+    ...pick(req.body, ['email', 'name', 'location']),
     password: hashedPassword,
   });
 
@@ -46,31 +70,26 @@ export async function createUser(req, res) {
   }
 }
 
-export async function login(req, res) {
-  const placement = pick(req.body, ['email', 'password']);
+export async function changePassword(req, res) {
+  const { userId } = req;
+
+  const placement = pick(req.body, ['password', 'newPassword', 'confirmPassword']);
+
+  if (!isEqual(placement.newPassword, placement.confirmedPassword)) {
+    res.sendStatus(400);
+  }
 
   const userInfo = pick(
-    await userModel.findUserByEmail(placement.email),
+    await userModel.findUser(userId),
     ['password'],
   );
 
   const isMatch = await bcrypt.compare(placement.password, userInfo.password);
 
   if (!isMatch) {
-    res.sendStatus(404);
+    res.sendStatus(400);
   }
 
-  const token = await jwt.sign({
-    email: userInfo.email,
-  },
-  process.env.APP_KEY,
-  {
-    expiresIn: '7d',
-  });
-
-  res.status(200)
-    .set('token', token)
-    .json({
-      status: 'success',
-    });
+  console.log('changePassword:', placement, userInfo, isMatch);
+  res.sendStatus(201);
 }

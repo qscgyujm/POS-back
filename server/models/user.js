@@ -37,7 +37,7 @@ export async function findUserByEmail(email) {
       },
     );
 
-    return user[0];
+    return user;
   } catch (error) {
     throw error;
   }
@@ -53,7 +53,7 @@ export async function updateUser(userId, placement) {
     WHERE id = :id
   `;
 
-  const newUser = await appDB.query(
+  const updatedRes = await appDB.query(
     sql,
     {
       replacements: {
@@ -65,7 +65,7 @@ export async function updateUser(userId, placement) {
     },
   );
 
-  console.log(newUser);
+  return updatedRes[1];
 }
 
 export async function createUser(placement) {
