@@ -1,5 +1,4 @@
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import { pick, isEqual } from 'lodash';
 
 import * as userModel from '../models/user';
@@ -29,30 +28,34 @@ export async function findUser(req, res) {
 export async function updateUser(req, res) {
   const { userId } = req;
 
-  const user = await userModel.findUser(userId);
-  const inputSetting = pick(req.body, ['name', 'location']);
+  try {
+    const user = await userModel.findUser(userId);
+    const inputSetting = pick(req.body, ['name', 'location']);
 
-  const newUserPlacement = {
-    ...pick(user, ['name', 'location']),
-    ...inputSetting,
-  };
+    const replacements = {
+      ...pick(user, ['name', 'location']),
+      ...inputSetting,
+    };
 
-  const updatedCount = await userModel.updateUser(userId, newUserPlacement);
+    const updatedCount = await userModel.updateUser(userId, replacements);
 
-  if (updatedCount !== 1) {
-    res.status(404);
+    if (updatedCount !== 1) {
+      res.status(404);
+    }
+
+    const newProfile = pick(
+      await userModel.findUser(userId),
+      ['email', 'name', 'location'],
+    );
+
+    res
+      .status(200)
+      .json({
+        profile: newProfile,
+      });
+  } catch (error) {
+    res.sendStatus(401);
   }
-
-  const newProfile = pick(
-    await userModel.findUser(userId),
-    ['email', 'name', 'location'],
-  );
-
-  res
-    .status(200)
-    .json({
-      profile: newProfile,
-    });
 }
 
 export async function createUser(req, res) {
@@ -75,21 +78,24 @@ export async function changePassword(req, res) {
 
   const placement = pick(req.body, ['password', 'newPassword', 'confirmPassword']);
 
-  if (!isEqual(placement.newPassword, placement.confirmedPassword)) {
-    res.sendStatus(400);
+  if (!isEqual(placement.newPassword, placement.confirmPassword)) {
+    return res.sendStatus(401);
   }
 
-  const userInfo = pick(
-    await userModel.findUser(userId),
-    ['password'],
-  );
+  try {
+    const userInfo = pick(
+      await userModel.findUser(userId),
+      ['password'],
+    );
 
-  const isMatch = await bcrypt.compare(placement.password, userInfo.password);
+    const isMatch = await bcrypt.compare(placement.password, userInfo.password);
 
-  if (!isMatch) {
-    res.sendStatus(400);
+    if (!isMatch) {
+      return res.sendStatus(400);
+    }
+
+    res.sendStatus(201).send();
+  } catch (error) {
+    res.sendStatus(401).send();
   }
-
-  console.log('changePassword:', placement, userInfo, isMatch);
-  res.sendStatus(201);
 }

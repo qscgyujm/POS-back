@@ -17,6 +17,7 @@ export async function findUser(userId) {
       },
     );
 
+    console.log('findUser', user);
     return user[0];
   } catch (error) {
     throw error;
@@ -43,7 +44,7 @@ export async function findUserByEmail(email) {
   }
 }
 
-export async function updateUser(userId, placement) {
+export async function updateUser(id, placement) {
   const sql = `
     UPDATE users
     SET
@@ -53,19 +54,24 @@ export async function updateUser(userId, placement) {
     WHERE id = :id
   `;
 
-  const updatedRes = await appDB.query(
-    sql,
-    {
-      replacements: {
-        id: userId,
-        ...placement,
-        updatedAt: (new Date()).toISOString().slice(0, -1), // Remove last char 'Z'
+  try {
+    const updatedRes = await appDB.query(
+      sql,
+      {
+        replacements: {
+          id,
+          ...placement,
+          updatedAt: (new Date()).toISOString().slice(0, -1), // Remove last char 'Z'
+        },
+        type: QueryTypes.UPDATE,
       },
-      type: QueryTypes.UPDATE,
-    },
-  );
+    );
 
-  return updatedRes[1];
+    console.log(updatedRes);
+    return updatedRes[1];
+  } catch (error) {
+    return error;
+  }
 }
 
 export async function createUser(placement) {
