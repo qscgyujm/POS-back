@@ -4,7 +4,6 @@ import cors from 'cors';
 import generalRoute from './general';
 import usersRouter from './users';
 import productRouter from './product';
-import testingRoute from './test';
 import authRoute from './auth';
 import orderRoute from './order';
 

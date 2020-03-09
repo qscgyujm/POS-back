@@ -76,16 +76,19 @@ export async function updateProduct(req, res) {
 
 export async function deleteProductById(req, res) {
   const productId = pick(req.params, 'id').id;
+  console.log('deleteProductById', productId);
 
   const deleteResult = await productModel.deleteProduct(productId);
 
-  if (deleteResult) {
+  if (!deleteResult) {
     res.sendStatus(404);
   }
+
+  const productList = await productModel.getAllProduct();
 
   res
     .status(200)
     .json({
-      status: 'success',
+      productList,
     });
 }

@@ -33,6 +33,7 @@ class OrderRepo {
         createdAt
       from orders 
       WHERE user_id = :userId
+        AND isComplete = 0
       GROUP BY order_id;
     `;
 
@@ -133,108 +134,6 @@ class OrderRepo {
 
 export const orderRepo = new OrderRepo(appDB);
 
-export async function getOrderByProductId(productId) {
-  try {
-    const sql = 'SELECT * from orders WHERE product_id = :productId';
-
-    const products = await appDB.query(
-      sql,
-      {
-        replacements: {
-          productId,
-        },
-        type: QueryTypes.SELECT,
-      },
-    );
-
-    return products;
-  } catch (error) {
-    throw error;
-  }
-}
-
-// export async function getOrderId() {
-//   try {
-//     const sql = 'SELECT COALESCE(MAX(order_id), 0) as maxNumber from orders';
-
-//     const res = await appDB.query(sql, {
-//       replacements,
-//       type: QueryTypes.SELECT,
-//     });
-
-//     console.log(res);
-//     return res[0].maxNumber;
-//   } catch (error) {
-//     throw error;
-//   }
-// }
-
-export async function createMultipleOrder(replacements) {
-  try {
-    const sql = `
-    INSERT INTO orders(
-      order_id,
-      product_id,
-      user_id,
-      quantity,
-      price,
-      createdAt,
-      updatedAt
-    ) VALUES ?
-  `;
-
-    console.log('createMultipleOrder', replacements);
-
-    const order = await appDB.query(
-      sql,
-      {
-        replacements: [replacements],
-        type: QueryTypes.INSERT,
-      },
-    );
-
-    console.log('multiple insert', order);
-  } catch (error) {
-    return error;
-  }
-}
-
-export async function createOrder(replacements) {
-  try {
-    const sql = `
-    INSERT INTO orders(
-      order_id,
-      product_id,
-      user_id,
-      quantity,
-      price,
-      createdAt,
-      updatedAt
-    ) VALUES (
-      :order_id,
-      :product_id,
-      :user_id,
-      :quantity,
-      :price,
-      NOW(),
-      NOW()
-    )
-  `;
-
-    const order = await appDB.query(
-      sql,
-      {
-        replacements,
-        type: QueryTypes.INSERT,
-      },
-    );
-
-    console.log('orderModel', order);
-    return order[1];
-  } catch (error) {
-    return error;
-  }
-}
 
 export async function submitOrder(replacements) {
   try {

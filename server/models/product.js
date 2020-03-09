@@ -127,10 +127,10 @@ export async function updateProductById(p_id, replacements) {
   }
 }
 
-export async function deleteProduct(p_id) {
+export async function deleteProduct(id) {
   const sql = `
-      DELETE FROM products
-      WHERE p_id = :p_id
+    DELETE FROM products
+    WHERE p_id = :id
   `;
 
   try {
@@ -138,7 +138,7 @@ export async function deleteProduct(p_id) {
       sql,
       {
         replacements: {
-          p_id,
+          id,
         },
         type: QueryTypes.DELETE,
       },
