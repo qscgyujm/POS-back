@@ -74,24 +74,21 @@ export async function updateProduct(req, res) {
     });
 }
 
-export async function deleteProductById(req, res) {
+export async function deleteProduct(req, res) {
   const productId = pick(req.params, 'id').id;
 
   try {
-    const deleteResult = await productModel.deleteById(productId);
-
-    if (!deleteResult) {
+    if (!await productModel.deleteById(productId)) {
       return res.sendStatus(404);
     }
 
     const productList = await productModel.findAll();
-
     res
       .status(200)
       .json({
         productList,
       });
   } catch (error) {
-    res.sendStatus(401);
+    return res.sendStatus(401);
   }
 }

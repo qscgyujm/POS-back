@@ -132,15 +132,12 @@ export async function deleteById(id) {
   `;
 
   try {
-    await appDB.query(
-      sql,
-      {
-        replacements: {
-          id,
-        },
-        type: QueryTypes.DELETE,
+    await appDB.query(sql, {
+      replacements: {
+        id,
       },
-    );
+      type: QueryTypes.DELETE,
+    });
 
     return true;
   } catch (error) {
