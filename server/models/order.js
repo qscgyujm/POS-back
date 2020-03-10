@@ -63,19 +63,11 @@ class OrderRepo {
         price,
         createdAt,
         updatedAt
-      ) VALUES (
-        :order_id,
-        :product_id,
-        :user_id,
-        :quantity,
-        :price,
-        NOW(),
-        NOW()
-      )
+      ) VALUES ?
     `;
 
     try {
-      const order = await this.dataPool.query(
+      const insertResult = await this.dataPool.query(
         sql,
         {
           replacements: [replacements],
@@ -83,7 +75,9 @@ class OrderRepo {
         },
       );
 
-      return order[1];
+      console.log('insertResult', insertResult);
+
+      return true;
     } catch (error) {
       return error;
     }
@@ -93,7 +87,7 @@ class OrderRepo {
     const sql = `
       UPDATE orders
         SET
-          isComplete = :isComplete
+          isComplete = 1
         WHERE order_id = :order_id
     `;
 
@@ -111,49 +105,27 @@ class OrderRepo {
     }
   }
 
-  async delete(orderId) {
+  async delete(id) {
     const sql = `
       DELETE FROM orders
-      WHERE order_id = :orderId
+      WHERE order_id = :id
     `;
 
     try {
-      const results = await this.dataPool.query(sql, {
+      await this.dataPool.query(sql, {
         replacements: {
-          orderId,
+          id,
         },
         type: QueryTypes.DELETE,
       });
-      console.log(results);
-      return results;
+
+      return true;
     } catch (error) {
       return error;
     }
   }
 }
 
-export const orderRepo = new OrderRepo(appDB);
+const orderRepo = new OrderRepo(appDB);
 
-
-export async function submitOrder(replacements) {
-  try {
-    const sql = `
-      UPDATE order
-        SET
-          isComplete = :isComplete
-        WHERE order_id =: order_id
-    `;
-
-    const updatedOrder = await appDB.query(
-      sql,
-      {
-        replacements,
-        type: QueryTypes.UPDATE,
-      },
-    );
-
-    console.log('updatedOrder', updatedOrder);
-  } catch (error) {
-    return error;
-  }
-}
+export default orderRepo;

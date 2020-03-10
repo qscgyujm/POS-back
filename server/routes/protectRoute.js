@@ -11,7 +11,7 @@ const router = express.Router();
 
 router.use('/general', generalRoute);
 router.use('/user', authMiddleware, usersRouter);
-router.use('/order', authMiddleware, orderRoute);
 router.use('/product', authMiddleware, productRouter);
+router.use('/order', authMiddleware, orderRoute);
 
 export default router;

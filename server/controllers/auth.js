@@ -33,7 +33,6 @@ export async function login(req, res) {
 }
 
 export const checkAuth = async (req, res) => {
-  console.log('check');
   const { userId } = req;
 
   try {
