@@ -1,6 +1,7 @@
 import { pick, isNil } from 'lodash';
 
 import * as productModel from '../models/product';
+import orderModel from '../models/order';
 
 export async function createProduct(req, res) {
   const placement = {
@@ -9,19 +10,23 @@ export async function createProduct(req, res) {
     imageUrl: req.body.imageUrl ? req.body.imageUrl : null,
   };
 
-  const createStatue = await productModel.insert(placement);
+  try {
+    const createStatue = await productModel.insert(placement);
 
-  if (!createStatue === 1) {
-    res.sendStatus(404).end();
+    if (!createStatue === 1) {
+      res.sendStatus(404).end();
+    }
+
+    const productList = await productModel.findAll();
+
+    res
+      .status(200)
+      .json({
+        productList,
+      });
+  } catch (error) {
+    return res.sendStatus(401);
   }
-
-  const productList = await productModel.findAll();
-
-  res
-    .status(200)
-    .json({
-      productList,
-    });
 }
 
 export async function findAllProduct(req, res) {
@@ -47,37 +52,45 @@ export async function updateProduct(req, res) {
   const productId = pick(req.params, 'id').id;
   const newProduct = pick(req.body, ['name', 'description', 'price', 'imageUrl']);
 
-  const oldProduct = await productModel.findById(productId);
+  try {
+    const oldProduct = await productModel.findById(productId);
 
-  if (isNil(oldProduct)) {
-    res.sendStatus(404);
+    if (isNil(oldProduct)) {
+      return res.sendStatus(404);
+    }
+
+    const replacement = {
+      ...oldProduct,
+      ...newProduct,
+    };
+
+    const updatedProductCount = await productModel.updateById(productId, replacement);
+
+    if (updatedProductCount === 0) {
+      return res.sendStatus(404);
+    }
+
+    const productList = await productModel.findAll();
+
+    res
+      .status(200)
+      .json({
+        count: updatedProductCount,
+        productList,
+      });
+  } catch (error) {
+    return res.sendStatus(401);
   }
-
-  const replacement = {
-    ...oldProduct,
-    ...newProduct,
-  };
-
-  const updatedProductCount = await productModel.updateById(productId, replacement);
-
-  if (updatedProductCount === 0) {
-    res.sendStatus(404);
-  }
-
-  const productList = await productModel.findAll();
-
-  res
-    .status(200)
-    .json({
-      count: updatedProductCount,
-      productList,
-    });
 }
 
 export async function deleteProduct(req, res) {
   const productId = pick(req.params, 'id').id;
 
   try {
+    if (!orderModel.deleteByProductId(productId)) {
+      return res.sendStatus(401);
+    }
+
     if (!await productModel.deleteById(productId)) {
       return res.sendStatus(404);
     }

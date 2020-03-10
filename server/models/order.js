@@ -124,6 +124,26 @@ class OrderRepo {
       return error;
     }
   }
+
+  async deleteByProductId(id) {
+    const sql = `
+      DELETE FROM orders
+      WHERE product_id = :id
+    `;
+
+    try {
+      await this.dataPool.query(sql, {
+        replacements: {
+          id,
+        },
+        type: QueryTypes.DELETE,
+      });
+
+      return true;
+    } catch (error) {
+      return error;
+    }
+  }
 }
 
 const orderRepo = new OrderRepo(appDB);
