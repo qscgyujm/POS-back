@@ -81,7 +81,7 @@ export async function deleteProductById(req, res) {
     const deleteResult = await productModel.deleteById(productId);
 
     if (!deleteResult) {
-      res.sendStatus(404);
+      return res.sendStatus(404);
     }
 
     const productList = await productModel.findAll();

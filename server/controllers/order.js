@@ -60,11 +60,9 @@ export async function createOrder(req, res) {
       ];
     });
 
-
-    console.log('replacements', replacements);
-    // if (!await orderModel.insertMany(replacements)) {
-    //   return res.sendStatus(401);
-    // }
+    if (!await orderModel.insertMany(replacements)) {
+      return res.sendStatus(401);
+    }
 
     res.status(200).send();
   } catch (error) {
