@@ -3,7 +3,7 @@ import { QueryTypes } from 'sequelize';
 
 import appDB from '../db/index';
 
-export async function getAllProduct() {
+export async function findAll() {
   try {
     const sql = 'SELECT * from products';
 
@@ -20,7 +20,7 @@ export async function getAllProduct() {
   }
 }
 
-export async function createProduct(replacements) {
+export async function insert(replacements) {
   try {
     const sql = `
     INSERT INTO products(
@@ -54,37 +54,35 @@ export async function createProduct(replacements) {
   }
 }
 
-export async function findMultipleProduct(p_ids) {
+export async function findByIds(ids) {
   try {
-    const sql = 'SELECT * from products WHERE p_id IN (:p_ids)';
+    const sql = 'SELECT * from products WHERE p_id IN (:ids)';
 
     const products = await appDB.query(
       sql,
       {
         replacements: {
-          p_ids,
+          ids,
         },
         type: QueryTypes.SELECT,
       },
     );
 
-    console.log('product', products);
     return products;
   } catch (error) {
-    console.log('error', error);
     return error;
   }
 }
 
-export async function findProductById(p_id) {
+export async function findById(id) {
   try {
-    const sql = 'SELECT * from products WHERE p_id = :p_id';
+    const sql = 'SELECT * from products WHERE p_id = :id';
 
     const user = await appDB.query(
       sql,
       {
         replacements: {
-          p_id,
+          id,
         },
         type: QueryTypes.SELECT,
       },
@@ -96,7 +94,7 @@ export async function findProductById(p_id) {
   }
 }
 
-export async function updateProductById(p_id, replacements) {
+export async function updateById(id, replacements) {
   try {
     const sql = `
       UPDATE products
@@ -106,14 +104,14 @@ export async function updateProductById(p_id, replacements) {
         price= :price,
         imageUrl= :imageUrl,
         updatedAt= :updatedAt
-      WHERE p_id = :p_id
+      WHERE p_id = :id
     `;
 
     const updatedProduct = await appDB.query(
       sql,
       {
         replacements: {
-          p_id,
+          id,
           ...replacements,
           updatedAt: (new Date()).toISOString().slice(0, -1), // Remove last char 'Z'
         },
@@ -127,7 +125,7 @@ export async function updateProductById(p_id, replacements) {
   }
 }
 
-export async function deleteProduct(id) {
+export async function deleteById(id) {
   const sql = `
     DELETE FROM products
     WHERE p_id = :id

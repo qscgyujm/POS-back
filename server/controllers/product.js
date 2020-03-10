@@ -9,13 +9,13 @@ export async function createProduct(req, res) {
     imageUrl: req.body.imageUrl ? req.body.imageUrl : null,
   };
 
-  const createStatue = await productModel.createProduct(placement);
+  const createStatue = await productModel.insert(placement);
 
   if (!createStatue === 1) {
     res.sendStatus(404).end();
   }
 
-  const productList = await productModel.getAllProduct();
+  const productList = await productModel.findAll();
 
   res
     .status(200)
@@ -25,7 +25,7 @@ export async function createProduct(req, res) {
 }
 
 export async function findAllProduct(req, res) {
-  const products = await productModel.getAllProduct();
+  const products = await productModel.findAll();
 
   res.status(200).json(products);
 }
@@ -35,7 +35,7 @@ export async function findProductById(req, res) {
   console.log('req.userId:', req.userId);
 
   try {
-    const product = await productModel.findProductById(productId);
+    const product = await productModel.findById(productId);
 
     res.status(200).json(product);
   } catch (error) {
@@ -47,7 +47,7 @@ export async function updateProduct(req, res) {
   const productId = pick(req.params, 'id').id;
   const newProduct = pick(req.body, ['name', 'description', 'price', 'imageUrl']);
 
-  const oldProduct = await productModel.findProductById(productId);
+  const oldProduct = await productModel.findById(productId);
 
   if (isNil(oldProduct)) {
     res.sendStatus(404);
@@ -58,13 +58,13 @@ export async function updateProduct(req, res) {
     ...newProduct,
   };
 
-  const updatedProductCount = await productModel.updateProductById(productId, replacement);
+  const updatedProductCount = await productModel.updateById(productId, replacement);
 
   if (updatedProductCount === 0) {
     res.sendStatus(404);
   }
 
-  const productList = await productModel.getAllProduct();
+  const productList = await productModel.findAll();
 
   res
     .status(200)
@@ -77,17 +77,21 @@ export async function updateProduct(req, res) {
 export async function deleteProductById(req, res) {
   const productId = pick(req.params, 'id').id;
 
-  const deleteResult = await productModel.deleteProduct(productId);
+  try {
+    const deleteResult = await productModel.deleteById(productId);
 
-  if (!deleteResult) {
-    res.sendStatus(404);
+    if (!deleteResult) {
+      res.sendStatus(404);
+    }
+
+    const productList = await productModel.findAll();
+
+    res
+      .status(200)
+      .json({
+        productList,
+      });
+  } catch (error) {
+    res.sendStatus(401);
   }
-
-  const productList = await productModel.getAllProduct();
-
-  res
-    .status(200)
-    .json({
-      productList,
-    });
 }

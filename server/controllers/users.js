@@ -79,7 +79,7 @@ export async function changePassword(req, res) {
   const placement = pick(req.body, ['password', 'newPassword', 'confirmPassword']);
 
   if (!isEqual(placement.newPassword, placement.confirmPassword)) {
-    return res.sendStatus(401);
+    res.sendStatus(401);
   }
 
   try {
@@ -91,8 +91,23 @@ export async function changePassword(req, res) {
     const isMatch = await bcrypt.compare(placement.password, userInfo.password);
 
     if (!isMatch) {
-      return res.sendStatus(400);
+      res.sendStatus(400);
     }
+
+    // const hashedPassword = bcrypt.hashSync(placement.newPassword, 8);
+
+    // const user = await userModel.findUser(userId);
+
+    // const replacements = {
+    //   ...pick(user, ['id']),
+    //   password: hashedPassword,
+    // };
+
+    // const updatedCount = await userModel.updatePassword(replacements);
+
+    // if (updatedCount !== 1) {
+    //   return res.sendStatus(404);
+    // }
 
     res.sendStatus(201).send();
   } catch (error) {

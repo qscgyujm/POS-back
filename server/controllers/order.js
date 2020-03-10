@@ -22,11 +22,9 @@ const convertDetailOrderList = (orderList) => orderList
   }))
   .map((order) => pick(order, ['order_id', 'totalPrice', 'detailOrder', 'createdAt']));
 
-export const fetchOrderByUserId = async (req, res) => {
+export async function fetchOrderByUserId(req, res) {
+  const { userId } = req;
   try {
-    const { userId } = req;
-
-    // const orderList = await orderModel.getOrderByUserId(userId);
     const orderList = await orderModel.findByUserId(userId);
 
     const orderDetailList = convertDetailOrderList(orderList);
@@ -35,12 +33,11 @@ export const fetchOrderByUserId = async (req, res) => {
       orderDetailList,
     });
   } catch (error) {
-    // return error;
-    console.log(error);
+    res.status(401);
   }
-};
+}
 
-export const createOrder = async (req, res) => {
+export async function createOrder(req, res) {
   const { userId } = req;
 
   try {
@@ -49,7 +46,7 @@ export const createOrder = async (req, res) => {
     const orders = req.body.order;
 
     const orderProductIds = orders.map((order) => order.id);
-    const productList = await productModel.findMultipleProduct(orderProductIds);
+    const productList = await productModel.findByIds(orderProductIds);
 
     const replacements = orders.map((order) => {
       const productInfo = productList.find((product) => product.p_id === order.id);
@@ -70,11 +67,11 @@ export const createOrder = async (req, res) => {
 
     res.sendStatus(200);
   } catch (error) {
-    return error;
+    res.status(401);
   }
-};
+}
 
-export const updateOrderSubmit = async (req, res) => {
+export async function updateOrderSubmit(req, res) {
   const { userId } = req;
 
   try {
@@ -85,7 +82,7 @@ export const updateOrderSubmit = async (req, res) => {
     });
 
     if (updateCount !== 1) {
-      return res.sendStatus(401);
+      res.sendStatus(401);
     }
 
     const orderList = await orderModel.findByUserId(userId);
@@ -95,18 +92,18 @@ export const updateOrderSubmit = async (req, res) => {
       orderDetailList,
     });
   } catch (error) {
-    return error;
+    res.status(401);
   }
-};
+}
 
-export const deleteOrder = async (req, res) => {
+export async function deleteOrder(req, res) {
   const { userId } = req;
 
   try {
     const orderId = pick(req.params, 'id').id;
 
     if (!await orderModel.delete(orderId)) {
-      return res.sendStatus(401);
+      res.sendStatus(401);
     }
 
     const orderList = await orderModel.findByUserId(userId);
@@ -116,6 +113,6 @@ export const deleteOrder = async (req, res) => {
       orderDetailList,
     });
   } catch (error) {
-    return error;
+    res.status(401);
   }
-};
+}

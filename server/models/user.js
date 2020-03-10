@@ -74,6 +74,34 @@ export async function updateUser(id, placement) {
   }
 }
 
+export async function updatePassword(replacements) {
+  const sql = `
+    UPDATE users
+    SET
+      password = :password,
+      updatedAt= :updatedAt
+    WHERE id = :id
+  `;
+
+  try {
+    const updatedRes = await appDB.query(
+      sql,
+      {
+        replacements: {
+          ...replacements,
+          updatedAt: (new Date()).toISOString().slice(0, -1), // Remove last char 'Z'
+        },
+        type: QueryTypes.UPDATE,
+      },
+    );
+
+    console.log(updatedRes);
+    return updatedRes[1];
+  } catch (error) {
+    return error;
+  }
+}
+
 export async function createUser(placement) {
   const sql = `
     INSERT INTO users(
