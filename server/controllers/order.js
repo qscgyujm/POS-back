@@ -10,14 +10,12 @@ const convertDetailOrderList = (orderList) => orderList
     ...order,
     productIdAry: order.productIdAry.split(','),
     quantityAry: order.quantityAry.split(','),
-    priceAry: order.priceAry.split(','),
   }))
   .map((order) => ({
     ...order,
     detailOrder: order.productIdAry.map((id, i) => ({
       id,
       quantity: order.quantityAry[i],
-      price: order.priceAry[i],
     })),
   }))
   .map((order) => pick(order, ['order_id', 'totalPrice', 'detailOrder', 'createdAt']));
@@ -33,7 +31,7 @@ export async function fetchOrderByUserId(req, res) {
       orderDetailList,
     });
   } catch (error) {
-    res.status(401);
+    return res.sendStatus(401);
   }
 }
 
@@ -44,6 +42,7 @@ export async function createOrder(req, res) {
     const orderNumber = await orderModel.findMaxOrderId();
 
     const orders = req.body.order;
+    console.log('orders', orders);
 
     const orderProductIds = orders.map((order) => order.id);
     const productList = await productModel.findByIds(orderProductIds);
@@ -61,13 +60,15 @@ export async function createOrder(req, res) {
       ];
     });
 
-    if (!await orderModel.insertMany(replacements)) {
-      res.sendStatus(401);
-    }
 
-    res.sendStatus(200);
+    console.log('replacements', replacements);
+    // if (!await orderModel.insertMany(replacements)) {
+    //   return res.sendStatus(401);
+    // }
+
+    res.status(200).send();
   } catch (error) {
-    res.status(401);
+    return res.sendStatus(401);
   }
 }
 
@@ -82,7 +83,7 @@ export async function updateOrderSubmit(req, res) {
     });
 
     if (updateCount !== 1) {
-      res.sendStatus(401);
+      return res.sendStatus(401);
     }
 
     const orderList = await orderModel.findByUserId(userId);
@@ -92,7 +93,7 @@ export async function updateOrderSubmit(req, res) {
       orderDetailList,
     });
   } catch (error) {
-    res.status(401);
+    return res.sendStatus(401);
   }
 }
 
@@ -103,7 +104,7 @@ export async function deleteOrder(req, res) {
     const orderId = pick(req.params, 'id').id;
 
     if (!await orderModel.delete(orderId)) {
-      res.sendStatus(401);
+      return res.sendStatus(401);
     }
 
     const orderList = await orderModel.findByUserId(userId);
@@ -113,6 +114,6 @@ export async function deleteOrder(req, res) {
       orderDetailList,
     });
   } catch (error) {
-    res.status(401);
+    return res.sendStatus(404);
   }
 }
