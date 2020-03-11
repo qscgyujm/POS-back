@@ -1,5 +1,6 @@
 import multer from 'multer';
 import path from 'path';
+import fs from 'fs';
 
 // multer
 // https://www.npmjs.com/package/multer
@@ -11,7 +12,11 @@ import path from 'path';
 //  store path
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(`${__dirname}/../public/images`));
+    if (!fs.existsSync(`${__dirname}/../public`)) {
+      fs.mkdirSync(`${__dirname}/../public`);
+    }
+
+    cb(null, path.join(`${__dirname}/../public`));
   },
   filename: (req, file, cb) => {
     cb(null, `${new Date().getMilliseconds().toString()}-${file.originalname}`);

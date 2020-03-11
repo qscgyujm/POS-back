@@ -1,9 +1,4 @@
 
-# Step 1
-- Add new project
-- connect sql
-
-# Step 2
-- create users table
-- create product table
-- 
+# 3/11
+- Add Typescript 
+- ADD Typescript test API.

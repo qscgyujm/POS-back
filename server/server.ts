@@ -2,9 +2,13 @@ import 'dotenv/config';
 
 import express from 'express';
 
-import './db/database';
+import './ts/db';
+
+import route from './ts/route';
 
 const app = express();
+
+app.use(route);
 
 console.log(process.env.NODE_ENV);
 
