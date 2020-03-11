@@ -1,4 +1,3 @@
-import bcrypt from 'bcryptjs';
 import sgMail from '@sendgrid/mail';
 import { pick, isEmpty } from 'lodash';
 
@@ -10,8 +9,9 @@ export async function sendCode(req, res) {
 
   const verificationCode = Math.random().toString(36);
 
-  if (!email.endsWith('@mailinator.com')) {
-    return res.status(404);
+  // Avoid mailinator signup
+  if (email.endsWith('@mailinator.com')) {
+    return res.sendStatus(404);
   }
 
   const code = verificationCode.slice(verificationCode.length - 6);
@@ -24,13 +24,13 @@ export async function sendCode(req, res) {
     const userInfo = await userModel.findUserByEmail(email);
 
     if (userInfo.length > 1) {
-      res.sendStatus(404);
+      return res.sendStatus(404);
     }
 
     const createCount = await verificationModel.createVerificationCode(replacements);
 
     if (createCount !== 1) {
-      res.sendStatus(404);
+      return res.sendStatus(404);
     }
 
     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -44,57 +44,39 @@ export async function sendCode(req, res) {
 
     const mailRes = await sgMail.send(msg);
 
-    // console.log('mailRes', mailRes);
-
-    if (
-      createCount === 1
-      && mailRes
-    ) {
-      res.status(200).send();
+    if (!mailRes) {
+      return res.sendStatus(401);
     }
+
+    res.status(200).send();
   } catch (error) {
-    res.sendStatus(404);
+    return res.sendStatus(404);
   }
 }
 
 
-export async function checkCode(req, res) {
-  const replacements = pick(req.body, ['email', 'password', 'name', 'location', 'code']);
+export async function checkCode(req, res, next) {
+  const { email, code } = pick(req.body, ['email', 'code']);
 
-  const codeInfo = await verificationModel.getVerificationCode(replacements);
+  try {
+    const codeInfo = await verificationModel.findByEmail(email);
 
-  if (isEmpty(codeInfo)) {
-    return res.sendStatus(400);
-  }
+    if (isEmpty(codeInfo)) {
+      return res.sendStatus(400);
+    }
 
-  const isCodeMatch = replacements.code === codeInfo[0].code;
+    const isCodeMatch = code === codeInfo[0].code;
 
-  if (!isCodeMatch) {
-    return res.sendStatus(401);
-  }
+    if (!isCodeMatch) {
+      return res.sendStatus(401);
+    }
 
-  const user = await userModel.findUserByEmail(replacements.email);
+    if (!await verificationModel.deleteByEmail(email)) {
+      return res.sendStatus(401);
+    }
 
-  if (!isEmpty(user)) {
+    next();
+  } catch (error) {
     return res.sendStatus(402);
   }
-
-  const placement = pick(req.body, ['password']);
-
-  const hashedPassword = bcrypt.hashSync(placement.password, 8);
-
-  if (!await verificationModel.deleteCode(replacements)) {
-    return res.sendStatus(403);
-  }
-
-  const createdStatus = await userModel.createUser({
-    ...pick(req.body, ['email', 'name', 'location']),
-    password: hashedPassword,
-  });
-
-  if (createdStatus) {
-    return res.sendStatus(201);
-  }
-
-  return res.sendStatus(404);
 }

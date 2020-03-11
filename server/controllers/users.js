@@ -15,14 +15,18 @@ export async function findUserById(req, res) {
 export async function findUser(req, res) {
   const { userId } = req;
 
-  const user = await userModel.findUser(userId);
-  const userInfo = pick(user, ['email', 'name', 'location']);
+  try {
+    const user = await userModel.findUser(userId);
+    const userInfo = pick(user, ['email', 'name', 'location']);
 
-  res
-    .status(200)
-    .json({
-      profile: userInfo,
-    });
+    res
+      .status(200)
+      .json({
+        profile: userInfo,
+      });
+  } catch (error) {
+    return res.sendStatus(401);
+  }
 }
 
 export async function updateUser(req, res) {
@@ -59,17 +63,25 @@ export async function updateUser(req, res) {
 }
 
 export async function createUser(req, res) {
-  const placement = pick(req.body, ['password']);
+  const { password } = pick(req.body, ['password']);
 
-  const hashedPassword = bcrypt.hashSync(placement.password, 8);
+  try {
+    const hashedPassword = bcrypt.hashSync(password, 8);
 
-  const createdStatus = await userModel.createUser({
-    ...pick(req.body, ['email', 'name', 'location']),
-    password: hashedPassword,
-  });
+    const replacements = {
+      ...req.body,
+      password: hashedPassword,
+    };
 
-  if (createdStatus) {
-    res.sendStatus(201);
+    const createCount = await userModel.createUser(replacements);
+
+    if (createCount !== 1) {
+      return res.sendStatus(401);
+    }
+
+    res.status(200).send();
+  } catch (error) {
+    return res.sendStatus(401);
   }
 }
 

@@ -29,14 +29,16 @@ export async function createVerificationCode(replacements) {
   }
 }
 
-export async function getVerificationCode(replacements) {
+export async function findByEmail(email) {
   try {
     const sql = 'SELECT * from verification_email WHERE email = :email';
 
     const selectRes = await appDB.query(
       sql,
       {
-        replacements,
+        replacements: {
+          email,
+        },
         type: QueryTypes.SELECT,
       },
     );
@@ -47,7 +49,7 @@ export async function getVerificationCode(replacements) {
   }
 }
 
-export async function deleteCode(replacements) {
+export async function deleteByEmail(email) {
   try {
     const sql = `
       DELETE FROM verification_email
@@ -57,13 +59,15 @@ export async function deleteCode(replacements) {
     await appDB.query(
       sql,
       {
-        replacements,
+        replacements: {
+          email,
+        },
         type: QueryTypes.DELETE,
       },
     );
 
     return true;
   } catch (error) {
-    throw error;
+    return false;
   }
 }

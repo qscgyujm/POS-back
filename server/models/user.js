@@ -108,28 +108,34 @@ export async function createUser(placement) {
       email,
       password,
       name,
+      location,
       createdAt,
       updatedAt
     ) VALUES (
       :email,
       :password,
       :name,
+      :location,
       NOW(),
       NOW()
     )
   `;
 
-  const user = await appDB.query(
-    sql,
-    {
-      replacements: {
-        ...placement,
-        createdAt: (new Date()).toISOString().slice(0, -1), // Remove last char 'Z'
-        updatedAt: (new Date()).toISOString().slice(0, -1),
+  try {
+    const [firstId, createCount] = await appDB.query(
+      sql,
+      {
+        replacements: {
+          ...placement,
+          createdAt: (new Date()).toISOString().slice(0, -1), // Remove last char 'Z'
+          updatedAt: (new Date()).toISOString().slice(0, -1),
+        },
+        type: QueryTypes.INSERT,
       },
-      type: QueryTypes.INSERT,
-    },
-  );
+    );
 
-  return user[1];
+    return createCount;
+  } catch (error) {
+    return error;
+  }
 }
