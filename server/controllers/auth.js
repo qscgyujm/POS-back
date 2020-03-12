@@ -5,38 +5,22 @@ import { pick } from 'lodash';
 import * as userModel from '../models/user';
 
 export async function login(req, res) {
-  const placement = pick(req.body, ['email', 'password']);
-
-  const userInfoList = await userModel.findUserByEmail(placement.email);
-  const userInfo = userInfoList[0];
-
-  const isMatch = await bcrypt.compare(placement.password, userInfo.password);
-
-  if (!isMatch) {
-    res.sendStatus(404);
-  }
-
-  const token = await jwt.sign({
-    userId: userInfo.id,
-    email: userInfo.email,
-  },
-  process.env.APP_KEY,
-  {
-    expiresIn: '7d',
-  });
-
-  res.status(200)
-    .set('token', token)
-    .json({
-      status: 'success',
-    });
-}
-
-export const checkAuth = async (req, res) => {
-  const { userId } = req;
+  const replacement = pick(req.body, ['email', 'password']);
+  const { email, password } = replacement;
 
   try {
-    const userInfo = pick(await userModel.findUser(userId), ['id', 'email']);
+    const users = await userModel.findUserByEmail(email);
+
+    if (users.length !== 1) {
+      return res.sendStatus(401);
+    }
+
+    const userInfo = users[0];
+    const isMatch = await bcrypt.compare(password, userInfo.password);
+
+    if (!isMatch) {
+      return res.sendStatus(404);
+    }
 
     const token = await jwt.sign({
       userId: userInfo.id,
@@ -47,12 +31,32 @@ export const checkAuth = async (req, res) => {
       expiresIn: '7d',
     });
 
-    res.status(200)
+    return res.status(200)
       .set('token', token)
       .json({
         status: 'success',
       });
   } catch (error) {
-    throw new Error(error);
+    return res.sendStatus(401);
+  }
+}
+
+export const checkAuth = async (req, res) => {
+  const token = req.get('Authorization');
+
+  if (!token) {
+    return res.sendStatus(401);
+  }
+
+  try {
+    const isLogin = await jwt.verify(token, process.env.APP_KEY);
+  } catch (error) {
+    const { message } = error;
+
+    if (message === 'jwt expired') {
+      return res.sendStatus(403);
+    }
+
+    return res.sendStatus(401);
   }
 };

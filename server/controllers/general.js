@@ -3,10 +3,8 @@ import AWS from 'aws-sdk';
 
 export const fileUpload = async (req, res) => {
   if (!req.file) {
-    res.sendStatus(404);
+    return res.sendStatus(404);
   }
-
-  console.log(req.file);
 
   const s3 = new AWS.S3({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,

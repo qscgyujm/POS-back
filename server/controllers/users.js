@@ -44,7 +44,7 @@ export async function updateUser(req, res) {
     const updatedCount = await userModel.updateUser(userId, replacements);
 
     if (updatedCount !== 1) {
-      res.status(404);
+      return res.sendStatus(404);
     }
 
     const newProfile = pick(
