@@ -50,6 +50,8 @@ export const checkAuth = async (req, res) => {
 
   try {
     const isLogin = await jwt.verify(token, process.env.APP_KEY);
+
+    res.status(200).send();
   } catch (error) {
     const { message } = error;
 
