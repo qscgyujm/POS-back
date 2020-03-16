@@ -23,21 +23,21 @@ export async function findAll() {
 export async function insert(replacements) {
   try {
     const sql = `
-    INSERT INTO products(
-      name,
-      description,
-      price,
-      imageUrl,
-      createdAt,
-      updatedAt
-    ) VALUES (
-      :name,
-      :description,
-      :price,
-      :imageUrl,
-      NOW(),
-      NOW()
-    )
+      INSERT INTO products(
+        name,
+        description,
+        price,
+        imageUrl,
+        createdAt,
+        updatedAt
+      ) VALUES (
+        :name,
+        :description,
+        :price,
+        :imageUrl,
+        NOW(),
+        NOW()
+      )
   `;
 
     const product = await appDB.query(
@@ -51,6 +51,33 @@ export async function insert(replacements) {
     return product[1];
   } catch (error) {
     return error;
+  }
+}
+
+export async function insertMany(replacements) {
+  const sql = `
+    INSERT INTO products(
+      name,
+      description,
+      price,
+      imageUrl,
+      createdAt,
+      updatedAt
+    ) VALUES ?
+  `;
+
+  try {
+    const [firstId, createCount] = await appDB.query(
+      sql,
+      {
+        replacements: [replacements],
+        type: QueryTypes.INSERT,
+      },
+    );
+
+    return createCount;
+  } catch (error) {
+    return null;
   }
 }
 

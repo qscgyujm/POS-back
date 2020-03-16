@@ -2,6 +2,7 @@ import { pick, isNil } from 'lodash';
 
 import * as productModel from '../models/product';
 import orderModel from '../models/order';
+import userProductModel from '../models/user-product';
 
 export async function createProduct(req, res) {
   const placement = {
@@ -17,34 +18,33 @@ export async function createProduct(req, res) {
       res.sendStatus(404).end();
     }
 
-    const productList = await productModel.findAll();
+    const products = await productModel.findAll();
 
-    res
-      .status(200)
-      .json({
-        productList,
-      });
+    return res.status(200).send(products);
   } catch (error) {
     return res.sendStatus(401);
   }
 }
 
 export async function findAllProduct(req, res) {
-  const products = await productModel.findAll();
+  try {
+    const products = await productModel.findAll();
 
-  res.status(200).json(products);
+    return res.status(200).send(products);
+  } catch (error) {
+    return res.sendStatus(401);
+  }
 }
 
 export async function findProductById(req, res) {
   const productId = pick(req.params, 'id').id;
-  console.log('req.userId:', req.userId);
 
   try {
     const product = await productModel.findById(productId);
 
-    res.status(200).json(product);
+    return res.status(200).json(product);
   } catch (error) {
-    console.log(error);
+    return res.sendStatus(401);
   }
 }
 
@@ -59,31 +59,27 @@ export async function updateProduct(req, res) {
       return res.sendStatus(404);
     }
 
-    const replacement = {
+    const replacements = {
       ...oldProduct,
       ...newProduct,
     };
 
-    const updatedProductCount = await productModel.updateById(productId, replacement);
+    const updatedProductCount = await productModel.updateById(productId, replacements);
 
     if (updatedProductCount === 0) {
       return res.sendStatus(404);
     }
 
-    const productList = await productModel.findAll();
+    const products = await productModel.findAll();
 
-    res
-      .status(200)
-      .json({
-        count: updatedProductCount,
-        productList,
-      });
+    return res.status(200).send(products);
   } catch (error) {
     return res.sendStatus(401);
   }
 }
 
 export async function deleteProduct(req, res) {
+  const { userId } = req;
   const productId = pick(req.params, 'id').id;
 
   try {
@@ -91,16 +87,21 @@ export async function deleteProduct(req, res) {
       return res.sendStatus(401);
     }
 
+    const replacements = {
+      userId,
+      productId,
+    };
+    if (!await userProductModel.delete(replacements)) {
+      return res.sendStatus(401);
+    }
+
     if (!await productModel.deleteById(productId)) {
       return res.sendStatus(404);
     }
 
-    const productList = await productModel.findAll();
-    res
-      .status(200)
-      .json({
-        productList,
-      });
+    const products = await productModel.findAll();
+
+    return res.status(200).send(products);
   } catch (error) {
     return res.sendStatus(401);
   }

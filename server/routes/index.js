@@ -5,6 +5,7 @@ import protectRoute from './protectRoute';
 
 import testingRoute from './test';
 import authRoute from './auth';
+import adminRoute from './admin';
 
 const router = express.Router();
 
@@ -22,6 +23,7 @@ const corsOptions = {
 router.use(cors(corsOptions));
 router.use('/test', testingRoute);
 router.use('/auth', authRoute);
+router.use('/admin', adminRoute);
 router.use(protectRoute);
 
 export default router;
